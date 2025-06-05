@@ -4,10 +4,21 @@
     {
       "src": "packages/scratch-gui/package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "build" }
+      "config": { 
+        "distDir": "packages/scratch-gui/build"
+      }
     }
   ],
   "routes": [
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/index.html", "dest": "/index.html" },
+    { "src": "/standalone.html", "dest": "/standalone.html" },
+    { "src": "/player.html", "dest": "/player.html" },
+    { "src": "/blocks-only.html", "dest": "/blocks-only.html" },
+    { "src": "/compatibility-testing.html", "dest": "/compatibility-testing.html" },
+    { "src": "/static/(.*)", "dest": "/static/$1" },
+    { "src": "/chunks/(.*)", "dest": "/chunks/$1" },
+    { "src": "/(.*\\.(js|css|map|ico|png|jpg|gif|svg|woff|woff2|eot|ttf))", "dest": "/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
