@@ -7,3 +7,11 @@ declare module '!raw-loader!.*' {
   declare const value: string;
   export default value;
 }
+
+declare module '@scratch/scratch-vm' {
+  class VirtualMachine {
+    attachStorage(storage: any): void;
+    // Add other methods as needed
+  }
+  export = VirtualMachine;
+}
