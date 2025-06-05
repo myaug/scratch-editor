@@ -43,7 +43,10 @@ const baseConfig = new ScratchWebpackConfigBuilder(
         resolve: {
             fallback: {
                 Buffer: require.resolve('buffer/'),
-                stream: require.resolve('stream-browserify')
+                stream: require.resolve('stream-browserify'),
+                'bufferutil': false,
+                'utf-8-validate': false,
+                'canvas': false
             }
         }
     })
@@ -156,35 +159,35 @@ const buildConfig = baseConfig.clone()
         ...commonHtmlWebpackPluginOptions,
         chunks: ['gui'],
         template: 'src/playground/index.ejs',
-        title: 'Scratch 3.0 GUI'
+        title: 'Scratch 3.0'
     }))
     .addPlugin(new HtmlWebpackPlugin({
         ...commonHtmlWebpackPluginOptions,
         chunks: ['guistandalone'],
         filename: 'standalone.html',
         template: 'src/playground/index.ejs',
-        title: 'Scratch 3.0 GUI: Standalone Mode'
+        title: 'Scratch 3.0: Standalone Mode'
     }))
     .addPlugin(new HtmlWebpackPlugin({
         ...commonHtmlWebpackPluginOptions,
         chunks: ['blocksonly'],
         filename: 'blocks-only.html',
         template: 'src/playground/index.ejs',
-        title: 'Scratch 3.0 GUI: Blocks Only Example'
+        title: 'Scratch 3.0: Blocks Only Example'
     }))
     .addPlugin(new HtmlWebpackPlugin({
         ...commonHtmlWebpackPluginOptions,
         chunks: ['compatibilitytesting'],
         filename: 'compatibility-testing.html',
         template: 'src/playground/index.ejs',
-        title: 'Scratch 3.0 GUI: Compatibility Testing'
+        title: 'Scratch 3.0: Compatibility Testing'
     }))
     .addPlugin(new HtmlWebpackPlugin({
         ...commonHtmlWebpackPluginOptions,
         chunks: ['player'],
         filename: 'player.html',
         template: 'src/playground/index.ejs',
-        title: 'Scratch 3.0 GUI: Player Example'
+        title: 'Scratch 3.0: Player Example'
     }))
     .addPlugin(new CopyWebpackPlugin({
         patterns: [

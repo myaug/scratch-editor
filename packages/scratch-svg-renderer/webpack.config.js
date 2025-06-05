@@ -33,6 +33,13 @@ const webConfig = new ScratchWebpackConfigBuilder(common)
                 name: 'ScratchSVGRenderer',
                 type: 'umd'
             }
+        },
+        resolve: {
+            fallback: {
+                'bufferutil': false,
+                'utf-8-validate': false,
+                'canvas': false
+            }
         }
     })
     .get();
@@ -54,6 +61,13 @@ const playgroundConfig = new ScratchWebpackConfigBuilder(common)
                 type: 'umd'
             },
             publicPath: '/'
+        },
+        resolve: {
+            fallback: {
+                'bufferutil': false,
+                'utf-8-validate': false,
+                'canvas': false
+            }
         }
     })
     .addPlugin(

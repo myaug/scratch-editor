@@ -11,7 +11,10 @@ const baseConfig = new ScratchWebpackConfigBuilder({
     .merge({
         resolve: {
             fallback: {
-                Buffer: require.resolve('buffer/')
+                Buffer: require.resolve('buffer/'),
+                'bufferutil': false,
+                'utf-8-validate': false,
+                'canvas': false
             }
         }
     });
