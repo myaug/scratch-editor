@@ -1,14 +1,8 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "packages/scratch-gui/package.json",
-      "use": "@vercel/static-build",
-      "config": { 
-        "distDir": "packages/scratch-gui/build"
-      }
-    }
-  ],
+  "installCommand": "npm install",
+  "buildCommand": "cd packages/scratch-gui && npm run build",
+  "outputDirectory": "packages/scratch-gui/build",
   "routes": [
     { "src": "/", "dest": "/index.html" },
     { "src": "/index.html", "dest": "/index.html" },
