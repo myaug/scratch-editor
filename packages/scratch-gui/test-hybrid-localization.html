@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hybrid Localization Test</title>
+</head>
+<body>
+    <div id="test-output"></div>
+    
+    <script>
+        // Simple test to check if the hybrid localization demo is accessible
+        console.log('Testing hybrid localization demo...');
+        
+        fetch('http://localhost:8073/hybrid-localization.html')
+            .then(response => response.text())
+            .then(html => {
+                console.log('HTML loaded successfully');
+                document.getElementById('test-output').innerHTML = 'Demo page accessible!';
+                
+                // Check if JavaScript is loading
+                return fetch('http://localhost:8073/hybridlocalization.js');
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('JavaScript bundle loaded successfully');
+                    document.getElementById('test-output').innerHTML += '<br>JavaScript bundle accessible!';
+                } else {
+                    console.error('JavaScript bundle failed to load');
+                    document.getElementById('test-output').innerHTML += '<br>Error: JavaScript bundle not accessible!';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('test-output').innerHTML = 'Error: ' + error.message;
+            });
+    </script>
+</body>
+</html>

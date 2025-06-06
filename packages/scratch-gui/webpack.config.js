@@ -42,8 +42,8 @@ const baseConfig = new ScratchWebpackConfigBuilder(
         },
         resolve: {
             fallback: {
-                Buffer: require.resolve('buffer/'),
-                stream: require.resolve('stream-browserify'),
+                'Buffer': require.resolve('buffer/'),
+                'stream': require.resolve('stream-browserify'),
                 'bufferutil': false,
                 'utf-8-validate': false,
                 'canvas': false
@@ -118,6 +118,12 @@ const distConfig = baseConfig.clone()
                     from: 'src/lib/libraries/*.json',
                     to: 'libraries',
                     flatten: true
+                },
+                {
+                    from: 'src/lib/custom-locales/*.json',
+                    to: 'custom-locales',
+                    flatten: true,
+                    noErrorOnMissing: true
                 }
             ]
         })
@@ -199,6 +205,12 @@ const buildConfig = baseConfig.clone()
                 from: 'extensions/**',
                 to: 'static',
                 context: 'src/examples'
+            },
+            {
+                from: 'src/lib/custom-locales/*.json',
+                to: 'custom-locales',
+                flatten: true,
+                noErrorOnMissing: true
             }
         ]
     }));

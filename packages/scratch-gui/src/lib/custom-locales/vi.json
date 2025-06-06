@@ -1,0 +1,10 @@
+{
+    "gui.menuBar.settings": "Cài đặt",
+    "gui.menuBar.file": "Tệp tin",
+    "gui.menuBar.edit": "Chỉnh sửa",
+    "gui.menuBar.tutorials": "Hướng dẫn",
+    "gui.gui.addExtension": "Thêm tiện ích mở rộng",
+    "gui.gui.codeTab": "Mã lệnh",
+    "gui.gui.costumesTab": "Trang phục",
+    "gui.gui.backdropsTab": "Phông nền"
+}

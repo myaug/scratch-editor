@@ -9,9 +9,9 @@ declare module '!raw-loader!.*' {
 }
 
 declare module '@scratch/scratch-vm' {
-  class VirtualMachine {
-    attachStorage(storage: any): void;
-    // Add other methods as needed
-  }
-  export = VirtualMachine;
+    class VirtualMachine {
+        attachStorage(storage: unknown): void;
+        // Add other methods as needed
+    }
+    export = VirtualMachine;
 }
