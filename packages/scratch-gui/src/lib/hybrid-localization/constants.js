@@ -25,7 +25,7 @@ export const CLEAR_CUSTOM_MESSAGES = REDUX_ACTIONS.CLEAR_CUSTOM_MESSAGES;
 export const SET_HYBRID_LOCALE = REDUX_ACTIONS.SET_HYBRID_LOCALE;
 
 export const DEFAULT_CONFIG = {
-    mode: LOCALIZATION_MODES.HYBRID,
+    mode: LOCALIZATION_MODES.CUSTOM_ONLY,
     customLocalesPath: './custom-locales/',
     fallbackLocale: 'en',
     enableCache: true,
@@ -33,7 +33,7 @@ export const DEFAULT_CONFIG = {
 };
 
 export const SUPPORTED_LOCALES = [
-    'en', 'vi', 'es', 'fr', 'de', 'ja', 'ko', 'zh-cn', 'zh-tw'
+    'en', 'vi'
 ];
 
 export const CACHE_KEYS = {
