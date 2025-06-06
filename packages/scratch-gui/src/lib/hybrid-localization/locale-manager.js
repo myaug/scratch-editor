@@ -35,7 +35,12 @@ class LocaleManager {
             }
 
             // Load from file
-            const response = await fetch(`${this.config.customLocalesPath}${locale}.json`);
+            const url = `${this.config.customLocalesPath}${locale}.json`;
+            if (this.config.enableDevMode) {
+                console.log(`🌐 Loading custom locale from: ${url}`);
+            }
+            
+            const response = await fetch(url);
             if (response.ok) {
                 const messages = await response.json();
                 this.customMessages[locale] = messages;
@@ -47,7 +52,16 @@ class LocaleManager {
                 }
                 
                 this.updateStats(locale, messages);
+                
+                if (this.config.enableDevMode) {
+                    console.log(`✅ Loaded ${Object.keys(messages).length} custom messages for ${locale}`);
+                }
+                
                 return messages;
+            } else {
+                if (this.config.enableDevMode) {
+                    console.warn(`❌ Failed to load custom locale ${locale}: ${response.status} ${response.statusText}`);
+                }
             }
         } catch (error) {
             console.warn(`Failed to load custom locale ${locale}:`, error);

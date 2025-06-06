@@ -11,6 +11,7 @@
     { "src": "/blocks-only.html", "dest": "/blocks-only.html" },
     { "src": "/compatibility-testing.html", "dest": "/compatibility-testing.html" },
     { "src": "/static/(.*)", "dest": "/static/$1" },
+    { "src": "/custom-locales/(.*)", "dest": "/custom-locales/$1" },
     { "src": "/chunks/(.*)", "dest": "/chunks/$1" },
     { "src": "/(.*\\.(js|css|map|ico|png|jpg|gif|svg|woff|woff2|eot|ttf))", "dest": "/$1" },
     { "src": "/(.*)", "dest": "/index.html" }
