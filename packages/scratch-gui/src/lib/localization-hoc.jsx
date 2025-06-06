@@ -2,12 +2,12 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 
-import ConnectedIntlProvider from './connected-intl-provider.jsx';
+import HybridConnectedIntlProvider from './hybrid-connected-intl-provider.jsx';
 
 /*
  * Higher Order Component to provide localiztion state. Creates a nested IntlProvider
- * to handle Gui intl context. The component accepts an onSetLanguage callback that is
- * called when the locale chagnes.
+ * to handle Gui intl context with hybrid localization support. The component accepts
+ * an onSetLanguage callback that is called when the locale changes.
  * @param {React.Component} WrappedComponent - component to provide state for
  * @returns {React.Component} component with intl state provided from redux
  */
@@ -25,9 +25,9 @@ const LocalizationHOC = function (WrappedComponent) {
                 ...componentProps
             } = this.props;
             return (
-                <ConnectedIntlProvider>
+                <HybridConnectedIntlProvider>
                     <WrappedComponent {...componentProps} />
-                </ConnectedIntlProvider>
+                </HybridConnectedIntlProvider>
             );
         }
     }

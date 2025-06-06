@@ -3,6 +3,7 @@ import localesReducer, {initLocale, localesInitialState} from '../reducers/local
 import locales from 'scratch-l10n';
 import {detectLocale} from './detect-locale';
 import {GUIConfig} from '../gui-config';
+import {initializeCustomLocales} from './hybrid-localization/auto-loader';
 
 interface WindowWithDevtools {
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__?: typeof compose;
@@ -91,6 +92,20 @@ export class EditorState {
         }
         const reducer = combineReducers(reducers);
         this.store = createStore(reducer, initialState, enhancer);
+        
+        // Auto-load custom locales after store initialization
+        this.initializeCustomLocales();
+    }
+    
+    /**
+     * Initialize custom locale files automatically
+     */
+    private async initializeCustomLocales() {
+        try {
+            await initializeCustomLocales(this.store.getState(), this.store.dispatch);
+        } catch (error) {
+            console.warn('Failed to initialize custom locales:', error);
+        }
     }
 
     dispatch (action) {

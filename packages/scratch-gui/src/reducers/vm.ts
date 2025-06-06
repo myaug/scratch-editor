@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import VM = require('@scratch/scratch-vm');
 import {GUIConfig} from '../gui-config';
 
