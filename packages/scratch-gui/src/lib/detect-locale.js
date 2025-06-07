@@ -12,7 +12,8 @@ import queryString from 'query-string';
  * @return {string} the preferred locale
  */
 const detectLocale = supportedLocales => {
-    let locale = 'en'; // default
+    // let locale = 'en'; // default
+    let locale = 'vi'; // default for Vietnamese localization
     let browserLocale = window.navigator.userLanguage || window.navigator.language;
     browserLocale = browserLocale.toLowerCase();
     // try to set locale from browserLocale
