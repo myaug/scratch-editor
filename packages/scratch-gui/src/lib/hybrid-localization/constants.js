@@ -26,7 +26,7 @@ export const SET_HYBRID_LOCALE = REDUX_ACTIONS.SET_HYBRID_LOCALE;
 
 export const DEFAULT_CONFIG = {
     mode: LOCALIZATION_MODES.CUSTOM_ONLY,
-    customLocalesPath: './custom-locales/',
+    customLocalesPath: '/custom-locales/',
     fallbackLocale: 'en',
     enableCache: true,
     enableDevMode: process.env.NODE_ENV === 'development'

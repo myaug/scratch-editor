@@ -35,7 +35,17 @@ class LocaleManager {
             }
 
             // Load from file
-            const response = await fetch(`${this.config.customLocalesPath}${locale}.json`);
+            const url = `${this.config.customLocalesPath}${locale}.json`;
+            if (this.config.enableDevMode) {
+                console.log(`🌐 Loading custom locale from: ${url}`);
+            }
+            
+            // Add timeout to prevent hanging on slow networks
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+            
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
             if (response.ok) {
                 const messages = await response.json();
                 this.customMessages[locale] = messages;
@@ -47,10 +57,23 @@ class LocaleManager {
                 }
                 
                 this.updateStats(locale, messages);
+                
+                if (this.config.enableDevMode) {
+                    console.log(`✅ Loaded ${Object.keys(messages).length} custom messages for ${locale}`);
+                }
+                
                 return messages;
+            } else {
+                if (this.config.enableDevMode) {
+                    console.warn(`❌ Failed to load custom locale ${locale}: ${response.status} ${response.statusText}`);
+                }
             }
         } catch (error) {
-            console.warn(`Failed to load custom locale ${locale}:`, error);
+            if (error.name === 'AbortError') {
+                console.warn(`Timeout loading custom locale ${locale} after 10 seconds`);
+            } else {
+                console.warn(`Failed to load custom locale ${locale}:`, error);
+            }
         }
 
         // Return empty object if loading fails
