@@ -5,7 +5,7 @@
 
 import {DEFAULT_CONFIG} from './constants';
 import {localeManager} from './locale-manager';
-import {updateCustomMessages} from '../../reducers/locales';
+import {updateCustomMessages, startLoadingCustomLocale, finishLoadingCustomLocale} from '../../reducers/locales';
 
 /**
  * Auto-load custom locale for a given locale
@@ -19,6 +19,8 @@ export const autoLoadCustomLocale = async (locale, dispatch) => {
         return false;
     }
 
+    dispatch(startLoadingCustomLocale(locale));
+
     try {
         console.log(`🌐 Auto-loading custom locale: ${locale}`);
         const customMessages = await localeManager.loadCustomLocale(locale);
@@ -26,13 +28,16 @@ export const autoLoadCustomLocale = async (locale, dispatch) => {
         if (customMessages && Object.keys(customMessages).length > 0) {
             console.log(`✅ Loaded ${Object.keys(customMessages).length} custom messages for ${locale}`);
             dispatch(updateCustomMessages(locale, customMessages));
+            dispatch(finishLoadingCustomLocale(locale));
             return true;
         } else {
             console.log(`ℹ️ No custom messages found for ${locale}`);
+            dispatch(finishLoadingCustomLocale(locale));
             return false;
         }
     } catch (error) {
         console.warn(`❌ Failed to auto-load custom locale ${locale}:`, error);
+        dispatch(finishLoadingCustomLocale(locale));
         return false;
     }
 };

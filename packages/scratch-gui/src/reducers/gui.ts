@@ -30,11 +30,12 @@ import vmReducer, {vmInitialState} from './vm';
 import vmStatusReducer, {vmStatusInitialState} from './vm-status';
 import workspaceMetricsReducer, {workspaceMetricsInitialState} from './workspace-metrics';
 import throttle from 'redux-throttle';
+import thunk from 'redux-thunk';
 
 import decks from '../lib/libraries/decks/index.jsx';
 import {GUIConfig} from '../gui-config';
 
-const guiMiddleware = compose(applyMiddleware(throttle(300, {leading: true, trailing: true})));
+const guiMiddleware = compose(applyMiddleware(thunk, throttle(300, {leading: true, trailing: true})));
 
 const buildInitialState = (config: GUIConfig) => ({
     alerts: alertsInitialState,

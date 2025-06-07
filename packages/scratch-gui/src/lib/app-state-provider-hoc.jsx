@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import {EditorState} from './editor-state';
 import {setPlayer, setFullScreen} from '../reducers/mode.js';
-import ConnectedIntlProvider from './connected-intl-provider.jsx';
+import HybridConnectedIntlProvider from './hybrid-connected-intl-provider.jsx';
 
 /**
  * Wraps the editor into the redux state contained within an EditorState instance.
@@ -28,6 +28,7 @@ export const AppStateProviderHOC = function (WrappedComponent) {
         render () {
             const {
                 appState,
+                localesOnly, // eslint-disable-line no-unused-vars
                 isFullScreen, // eslint-disable-line no-unused-vars
                 isPlayerOnly, // eslint-disable-line no-unused-vars
                 showTelemetryModal, // eslint-disable-line no-unused-vars
@@ -35,11 +36,11 @@ export const AppStateProviderHOC = function (WrappedComponent) {
             } = this.props;
             return (
                 <Provider store={appState.store}>
-                    <ConnectedIntlProvider>
+                    <HybridConnectedIntlProvider>
                         <WrappedComponent
                             {...componentProps}
                         />
-                    </ConnectedIntlProvider>
+                    </HybridConnectedIntlProvider>
                 </Provider>
             );
         }
