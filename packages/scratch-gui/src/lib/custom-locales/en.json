@@ -583,5 +583,15 @@
     "gui.webglModal.previewfaq": "To learn more, go to the {previewFaqLink}.",
     "gui.webglModal.previewfaqlinktext": "FAQ",
     "gui.webglModal.webgllink": "does not support WebGL",
-    "login.needHelp": "Need Help?"
+    "login.needHelp": "Need Help?",
+    "gui.theme.default": "Original",
+    "gui.theme.dark": "Dark",
+    "gui.theme.highContrast": "High Contrast",
+    "gui.comingSoon.message1": "Don't worry, we're on it {emoji}",
+    "gui.comingSoon.message2": "Coming Soon...",
+    "gui.comingSoon.message3": "We're working on it {emoji}",
+    "gui.library.gettingStarted": "Getting Started",
+    "gui.library.basics": "Basics",
+    "gui.library.intermediate": "Intermediate",
+    "gui.library.prompts": "Prompts"
 }

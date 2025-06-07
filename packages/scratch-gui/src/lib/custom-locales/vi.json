@@ -583,5 +583,15 @@
     "gui.webglModal.previewfaq": "Để tìm hiểu thêm, hãy truy cập {previewFaqLink}.",
     "gui.webglModal.previewfaqlinktext": "Câu hỏi thường gặp",
     "gui.webglModal.webgllink": "không hỗ trợ WebGL",
-    "login.needHelp": "Cần trợ giúp?"
+    "login.needHelp": "Cần trợ giúp?",
+    "gui.theme.default": "Nguyên bản",
+    "gui.theme.dark": "Tối",
+    "gui.theme.highContrast": "Tương phản cao",
+    "gui.comingSoon.message1": "Đừng lo, chúng tôi đang thực hiện {emoji}",
+    "gui.comingSoon.message2": "Sắp có...",
+    "gui.comingSoon.message3": "Chúng tôi đang hoàn thiện {emoji}",
+    "gui.library.gettingStarted": "Bắt đầu",
+    "gui.library.basics": "Cơ bản",
+    "gui.library.intermediate": "Nâng cao",
+    "gui.library.prompts": "Gợi ý"
 }
