@@ -16,6 +16,9 @@ import styles from './settings-menu.css';
 
 import dropdownCaret from './dropdown-caret.svg';
 
+// Allowed languages - only English and Vietnamese
+const ALLOWED_LOCALES = ['en', 'vi'];
+
 class LanguageMenu extends React.PureComponent {
     constructor (props) {
         super(props);
@@ -75,6 +78,7 @@ class LanguageMenu extends React.PureComponent {
                 >
                     {
                         Object.keys(locales)
+                            .filter(locale => ALLOWED_LOCALES.includes(locale))
                             .map(locale => (
                                 <MenuItem
                                     key={locale}
