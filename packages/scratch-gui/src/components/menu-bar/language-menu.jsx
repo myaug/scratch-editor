@@ -16,6 +16,11 @@ import styles from './settings-menu.css';
 
 import dropdownCaret from './dropdown-caret.svg';
 
+import {SUPPORTED_LOCALES} from '../../lib/hybrid-localization/constants.js';
+
+// Allowed languages - only English and Vietnamese
+const ALLOWED_LOCALES = SUPPORTED_LOCALES;
+
 class LanguageMenu extends React.PureComponent {
     constructor (props) {
         super(props);
@@ -75,6 +80,7 @@ class LanguageMenu extends React.PureComponent {
                 >
                     {
                         Object.keys(locales)
+                            .filter(locale => ALLOWED_LOCALES.includes(locale))
                             .map(locale => (
                                 <MenuItem
                                     key={locale}

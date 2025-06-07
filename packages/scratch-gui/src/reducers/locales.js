@@ -9,6 +9,8 @@ import {
     SET_LOCALIZATION_MODE,
     UPDATE_CUSTOM_MESSAGES,
     CLEAR_CUSTOM_MESSAGES,
+    START_LOADING_CUSTOM_LOCALE,
+    FINISH_LOADING_CUSTOM_LOCALE,
     DEFAULT_CONFIG
 } from '../lib/hybrid-localization/constants';
 import {localeManager} from '../lib/hybrid-localization/locale-manager';
@@ -27,7 +29,10 @@ const initialState = {
     localizationMode: DEFAULT_CONFIG.mode,
     customMessages: {},
     customMessagesByLocale: {},
-    combinedMessages: editorMessages.en
+    combinedMessages: editorMessages.en,
+    // Loading state for custom locales
+    customLocalesLoading: {},
+    customLocalesLoaded: {}
 };
 
 const reducer = function (state, action) {
@@ -100,6 +105,34 @@ const reducer = function (state, action) {
             )
         });
     }
+    case START_LOADING_CUSTOM_LOCALE: {
+        return Object.assign({}, state, {
+            customLocalesLoading: Object.assign({}, state.customLocalesLoading, {
+                [action.locale]: true
+            })
+        });
+    }
+    case FINISH_LOADING_CUSTOM_LOCALE: {
+        const newState = Object.assign({}, state, {
+            customLocalesLoading: Object.assign({}, state.customLocalesLoading, {
+                [action.locale]: false
+            }),
+            customLocalesLoaded: Object.assign({}, state.customLocalesLoaded, {
+                [action.locale]: true
+            })
+        });
+        
+        // Update combined messages if this is the current locale
+        if (action.locale === state.locale) {
+            newState.combinedMessages = getCombinedMessages(
+                state.messages,
+                state.customMessages,
+                state.localizationMode
+            );
+        }
+        
+        return newState;
+    }
     default:
         return state;
     }
@@ -161,19 +194,36 @@ const clearCustomMessages = function (locale) {
     };
 };
 
+const startLoadingCustomLocale = function (locale) {
+    return {
+        type: START_LOADING_CUSTOM_LOCALE,
+        locale: locale
+    };
+};
+
+const finishLoadingCustomLocale = function (locale) {
+    return {
+        type: FINISH_LOADING_CUSTOM_LOCALE,
+        locale: locale
+    };
+};
+
 /**
  * Action creator for loading custom locale automatically
  * @param {string} locale - The locale to load
  * @returns {Function} Thunk function
  */
 const loadCustomLocaleAsync = (locale) => async (dispatch) => {
+    dispatch(startLoadingCustomLocale(locale));
     try {
         const customMessages = await localeManager.loadCustomLocale(locale);
         if (customMessages && Object.keys(customMessages).length > 0) {
             dispatch(updateCustomMessages(locale, customMessages));
         }
+        dispatch(finishLoadingCustomLocale(locale));
     } catch (error) {
         console.warn(`Failed to load custom locale ${locale}:`, error);
+        dispatch(finishLoadingCustomLocale(locale));
     }
 };
 
@@ -213,5 +263,7 @@ export {
     setLocalizationMode,
     updateCustomMessages,
     clearCustomMessages,
+    startLoadingCustomLocale,
+    finishLoadingCustomLocale,
     loadCustomLocaleAsync
 };
