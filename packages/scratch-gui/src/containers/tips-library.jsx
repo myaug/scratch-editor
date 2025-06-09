@@ -5,6 +5,7 @@ import {injectIntl, intlShape, defineMessages} from 'react-intl';
 
 import decksLibraryContent from '../lib/libraries/decks/index.jsx';
 import tutorialTags from '../lib/libraries/tutorial-tags';
+import {getTutorialLevel, BLOCK_LEVELS} from '../lib/block-levels';
 
 import analytics from '../lib/analytics';
 import {PLATFORM} from '../lib/platform.js';
@@ -29,7 +30,7 @@ const messages = defineMessages({
     }
 });
 
-class TipsLibrary extends React.PureComponent {
+class TipsLibrary extends React.Component {
     constructor (props) {
         super(props);
         bindAll(this, [
@@ -89,6 +90,19 @@ class TipsLibrary extends React.PureComponent {
                     return false;
                 }
 
+                // Filter tutorials based on current block level
+                if (this.props.currentLevel && this.props.currentLevel !== BLOCK_LEVELS.STUDIO) {
+                    const tutorialLevel = getTutorialLevel(id);
+                    const levelHierarchy = [BLOCK_LEVELS.EXPLORER, BLOCK_LEVELS.CREATOR, BLOCK_LEVELS.MASTER, BLOCK_LEVELS.STUDIO];
+                    const currentLevelIndex = levelHierarchy.indexOf(this.props.currentLevel);
+                    const tutorialLevelIndex = levelHierarchy.indexOf(tutorialLevel);
+                    
+                    // Only show tutorials that are at or below the current level
+                    if (tutorialLevelIndex > currentLevelIndex) {
+                        return false;
+                    }
+                }
+
                 return true;
             })
             .map(id => ({
@@ -106,6 +120,7 @@ class TipsLibrary extends React.PureComponent {
         if (!this.props.visible) return null;
         return (
             <LibraryComponent
+                key={`tips-library-${this.props.currentLevel}`} // Force re-render when level changes
                 filterable
                 data={decksLibraryThumbnailData}
                 id="tipsLibrary"
@@ -128,13 +143,15 @@ TipsLibrary.propTypes = {
     projectId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     platform: PropTypes.oneOf(Object.keys(PLATFORM)),
     visible: PropTypes.bool,
-    hideTutorialProjects: PropTypes.bool
+    hideTutorialProjects: PropTypes.bool,
+    currentLevel: PropTypes.string
 };
 
 const mapStateToProps = state => ({
     visible: state.scratchGui.modals.tipsLibrary,
     projectId: state.scratchGui.projectState.projectId,
-    platform: state.scratchGui.platform.platform
+    platform: state.scratchGui.platform.platform,
+    currentLevel: state.scratchGui.blockLevel.level
 });
 
 const mapDispatchToProps = dispatch => ({

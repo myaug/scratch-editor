@@ -34,6 +34,7 @@ import TelemetryModal from '../telemetry-modal/telemetry-modal.jsx';
 import layout, {STAGE_SIZE_MODES} from '../../lib/layout-constants';
 import {resolveStageSize} from '../../lib/screen-utils';
 import {themeMap} from '../../lib/themes';
+import {BLOCK_LEVELS} from '../../lib/block-levels';
 import {AccountMenuOptionsPropTypes} from '../../lib/account-menu-options';
 
 import styles from './gui.css';
@@ -140,6 +141,7 @@ const GUIComponent = props => {
         userOwnsProject,
         hideTutorialProjects,
         vm,
+        currentLevel,
         ...componentProps
     } = omit(props, 'dispatch', 'setPlatform');
     if (children) {
@@ -357,6 +359,7 @@ const GUIComponent = props => {
                                             stageSize={stageSize}
                                             theme={theme}
                                             vm={vm}
+                                            currentLevel={currentLevel}
                                         />
                                     </Box>
                                     <Box className={styles.extensionButtonContainer}>
@@ -364,6 +367,7 @@ const GUIComponent = props => {
                                             className={styles.extensionButton}
                                             title={intl.formatMessage(messages.addExtension)}
                                             onClick={onExtensionButtonClick}
+                                            disabled={currentLevel !== BLOCK_LEVELS.STUDIO}
                                         >
                                             <img
                                                 className={styles.extensionButtonIcon}
@@ -495,7 +499,8 @@ GUIComponent.propTypes = {
     username: PropTypes.string,
     userOwnsProject: PropTypes.bool,
     hideTutorialProjects: PropTypes.bool,
-    vm: PropTypes.instanceOf(VM).isRequired
+    vm: PropTypes.instanceOf(VM).isRequired,
+    currentLevel: PropTypes.string
 };
 
 GUIComponent.defaultProps = {
@@ -527,7 +532,8 @@ const mapStateToProps = state => ({
     // This is the button's mode, as opposed to the actual current state
     blocksId: state.scratchGui.timeTravel.year.toString(),
     stageSizeMode: state.scratchGui.stageSize.stageSize,
-    theme: state.scratchGui.theme.theme
+    theme: state.scratchGui.theme.theme,
+    currentLevel: state.scratchGui.blockLevel.level
 });
 
 const mapDispatchToProps = dispatch => ({

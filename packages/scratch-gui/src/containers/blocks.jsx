@@ -154,7 +154,8 @@ class Blocks extends React.Component {
             this.props.customProceduresVisible !== nextProps.customProceduresVisible ||
             this.props.locale !== nextProps.locale ||
             this.props.anyModalVisible !== nextProps.anyModalVisible ||
-            this.props.stageSize !== nextProps.stageSize
+            this.props.stageSize !== nextProps.stageSize ||
+            this.props.currentLevel !== nextProps.currentLevel
         );
     }
     componentDidUpdate (prevProps) {
@@ -167,6 +168,16 @@ class Blocks extends React.Component {
         // different from the previously rendered toolbox xml.
         // Do not check against prevProps.toolboxXML because that may not have been rendered.
         if (this.props.isVisible && this.props.toolboxXML !== this._renderedToolboxXML) {
+            this.requestToolboxUpdate();
+        }
+
+        // Update toolbox when currentLevel changes
+        if (this.props.isVisible && this.props.currentLevel !== prevProps.currentLevel) {
+            // Regenerate toolbox XML with new level and update Redux state
+            const newToolboxXML = this.getToolboxXML();
+            if (newToolboxXML) {
+                this.props.updateToolboxState(newToolboxXML);
+            }
             this.requestToolboxUpdate();
         }
 
@@ -227,6 +238,8 @@ class Blocks extends React.Component {
 
         const categoryId = this.workspace.toolbox_.getSelectedCategoryId();
         const offset = this.workspace.toolbox_.getCategoryScrollOffset();
+
+        // eslint-disable-next-line no-console
         this.workspace.updateToolbox(this.props.toolboxXML);
         this._renderedToolboxXML = this.props.toolboxXML;
 
@@ -359,12 +372,14 @@ class Blocks extends React.Component {
                 this.props.vm.runtime.getBlocksXML(target),
                 this.props.theme
             );
-            return makeToolboxXML(false, target.isStage, target.id, dynamicBlocksXML,
+            const xml = makeToolboxXML(false, target.isStage, target.id, dynamicBlocksXML,
                 targetCostumes[targetCostumes.length - 1].name,
                 stageCostumes[stageCostumes.length - 1].name,
                 targetSounds.length > 0 ? targetSounds[targetSounds.length - 1].name : '',
-                getColorsForTheme(this.props.theme)
+                getColorsForTheme(this.props.theme),
+                this.props.currentLevel
             );
+            return xml;
         } catch {
             return null;
         }
@@ -549,6 +564,7 @@ class Blocks extends React.Component {
         const {
             anyModalVisible,
             canUseCloud,
+            currentLevel,
             customProceduresVisible,
             extensionLibraryVisible,
             options,
@@ -645,7 +661,8 @@ Blocks.propTypes = {
     vm: PropTypes.instanceOf(VM).isRequired,
     workspaceMetrics: PropTypes.shape({
         targets: PropTypes.objectOf(PropTypes.object)
-    })
+    }),
+    currentLevel: PropTypes.string
 };
 
 Blocks.defaultOptions = {
@@ -682,7 +699,8 @@ const mapStateToProps = state => ({
     toolboxXML: state.scratchGui.toolbox.toolboxXML,
     customProceduresVisible: state.scratchGui.customProcedures.active,
     workspaceMetrics: state.scratchGui.workspaceMetrics,
-    useCatBlocks: isTimeTravel2020(state)
+    useCatBlocks: isTimeTravel2020(state),
+    currentLevel: state.scratchGui.blockLevel.level
 });
 
 const mapDispatchToProps = dispatch => ({

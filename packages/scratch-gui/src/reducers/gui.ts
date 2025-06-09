@@ -1,11 +1,12 @@
 import {applyMiddleware, compose, combineReducers} from 'redux';
 import alertsReducer, {alertsInitialState} from './alerts';
 import assetDragReducer, {assetDragInitialState} from './asset-drag';
+import blockDragReducer, {blockDragInitialState} from './block-drag';
+import blockLevelReducer, {blockLevelInitialState} from './block-level';
 import cardsReducer, {cardsInitialState} from './cards';
 import colorPickerReducer, {colorPickerInitialState} from './color-picker';
 import connectionModalReducer, {connectionModalInitialState} from './connection-modal';
 import customProceduresReducer, {customProceduresInitialState} from './custom-procedures';
-import blockDragReducer, {blockDragInitialState} from './block-drag';
 import editorTabReducer, {editorTabInitialState} from './editor-tab';
 import hoveredTargetReducer, {hoveredTargetInitialState} from './hovered-target';
 import menuReducer, {menuInitialState} from './menus';
@@ -41,6 +42,7 @@ const buildInitialState = (config: GUIConfig) => ({
     alerts: alertsInitialState,
     assetDrag: assetDragInitialState,
     blockDrag: blockDragInitialState,
+    blockLevel: blockLevelInitialState,
     cards: cardsInitialState,
     colorPicker: colorPickerInitialState,
     config,
@@ -150,6 +152,7 @@ const guiReducer = combineReducers({
     alerts: alertsReducer,
     assetDrag: assetDragReducer,
     blockDrag: blockDragReducer,
+    blockLevel: blockLevelReducer,
     cards: cardsReducer,
     colorPicker: colorPickerReducer,
     connectionModal: connectionModalReducer,
