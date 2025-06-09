@@ -322,33 +322,3 @@ export const TUTORIAL_LEVEL_MAPPING = {
 export function getTutorialLevel(tutorialId) {
     return TUTORIAL_LEVEL_MAPPING[tutorialId] || BLOCK_LEVELS.STUDIO;
 }
-
-/**
- * Level descriptions for UI
- */
-export const LEVEL_DESCRIPTIONS = {
-    [BLOCK_LEVELS.EXPLORER]: {
-        name: 'Explorer',
-        description: 'Basic movement, appearance, and simple interactions',
-        color: '#4C97FF', 
-        icon: '🎯'
-    },
-    [BLOCK_LEVELS.CREATOR]: {
-        name: 'Creator', 
-        description: 'Events, loops, conditions, and user input',
-        color: '#FF6680',
-        icon: '🎨'
-    },
-    [BLOCK_LEVELS.MASTER]: {
-        name: 'Master',
-        description: 'Variables, complex logic, and advanced interactions', 
-        color: '#FF8C1A',
-        icon: '🏆'
-    },
-    [BLOCK_LEVELS.STUDIO]: {
-        name: 'Studio',
-        description: 'All blocks including extensions and advanced features',
-        color: '#8C52FF',
-        icon: '🎭'
-    }
-};

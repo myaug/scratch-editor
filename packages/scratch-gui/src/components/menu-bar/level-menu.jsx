@@ -10,7 +10,6 @@ import {MenuItem, Submenu} from '../menu/menu.jsx';
 import languageIcon from '../language-selector/language-icon.svg'; // Reuse language icon for now
 import {levelMenuOpen, openLevelMenu} from '../../reducers/menus.js';
 import {setLevel} from '../../reducers/block-level.js';
-import {LEVEL_DESCRIPTIONS} from '../../lib/block-levels.js';
 
 import styles from './settings-menu.css';
 
