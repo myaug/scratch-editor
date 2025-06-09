@@ -21,89 +21,57 @@ const filterBlocksForLevel = function (blockXML, categoryName, currentLevel) {
     const allowedBlocks = getBlocksForLevel(currentLevel);
     const categoryBlocks = allowedBlocks[categoryName] || [];
     
+    // Debug log
+    // eslint-disable-next-line no-console
+    console.log('[filterBlocksForLevel]', { categoryName, currentLevel, categoryBlocks });
+    
     if (categoryBlocks.length === 0) {
-        return blockXML; // If no blocks defined for this category at this level, show all
-    }
-    
-    // Helper function to find block elements properly handling nested XML
-    const findBlockElements = (xml) => {
-        const blockElements = [];
-        let currentPos = 0;
-        
-        while (true) {
-            const blockStart = xml.indexOf('<block', currentPos);
-            if (blockStart === -1) break;
-            
-            // Find the type attribute
-            const typeMatch = xml.slice(blockStart).match(/type="([^"]+)"/);
-            if (!typeMatch) {
-                currentPos = blockStart + 6; // Skip this <block
-                continue;
-            }
-            
-            const blockType = typeMatch[1];
-            
-            // Find the matching closing tag
-            let depth = 0;
-            let pos = blockStart;
-            let blockEnd = -1;
-            
-            while (pos < xml.length) {
-                const nextOpen = xml.indexOf('<block', pos);
-                const nextClose = xml.indexOf('</block>', pos);
-                
-                if (nextClose === -1) break;
-                
-                if (nextOpen !== -1 && nextOpen < nextClose) {
-                    depth++;
-                    pos = nextOpen + 6;
-                } else {
-                    if (depth === 0) {
-                        blockEnd = nextClose + 8;
-                        break;
-                    }
-                    depth--;
-                    pos = nextClose + 8;
-                }
-            }
-            
-            if (blockEnd !== -1) {
-                const blockContent = xml.slice(blockStart, blockEnd);
-                blockElements.push({
-                    type: blockType,
-                    content: blockContent
-                });
-                currentPos = blockEnd;
-            } else {
-                currentPos = blockStart + 6;
-            }
-        }
-        
-        return blockElements;
-    };
-    
-    // Find all block elements
-    const allBlocks = findBlockElements(blockXML);
-    const allowedBlockElements = allBlocks.filter(block => categoryBlocks.includes(block.type));
-    
-    if (allowedBlockElements.length > 0) {
-        // Extract the category opening and closing tags
+        // Trả về category rỗng đúng định dạng
         const categoryOpenMatch = blockXML.match(/^(.*?<category[^>]*>)/s);
         const categoryCloseMatch = blockXML.match(/(<\/category>.*)$/s);
-        
-        if (categoryOpenMatch && categoryCloseMatch) {
-            const categoryOpen = categoryOpenMatch[1];
-            const categoryClose = categoryCloseMatch[1];
-            
-            // Reconstruct with filtered blocks, using the actual separator value
-            const separator = '<sep gap="36"/>';
-            const filteredContent = allowedBlockElements.map(block => block.content).join('\n' + separator + '\n');
-            
-            return categoryOpen + '\n' + filteredContent + '\n' + categoryClose;
-        }
+        if (!categoryOpenMatch || !categoryCloseMatch) return blockXML;
+        return categoryOpenMatch[1] + '\n' + categoryCloseMatch[1];
     }
     
-    return blockXML;
+    // Extract the category opening and closing tags
+    const categoryOpenMatch = blockXML.match(/^(.*?<category[^>]*>)/s);
+    const categoryCloseMatch = blockXML.match(/(<\/category>.*)$/s);
+    if (!categoryOpenMatch || !categoryCloseMatch) return blockXML;
+    const categoryOpen = categoryOpenMatch[1];
+    const categoryClose = categoryCloseMatch[1];
+    const categoryContent = blockXML.slice(categoryOpen.length, blockXML.length - categoryClose.length);
+
+    // Tách các nhóm theo <sep gap="..."/>
+    const sepRegex = /<sep gap="\d+"\/>/g;
+    const groups = categoryContent.split(sepRegex);
+    const blockOrOtherRegex = /(<block[\s\S]*?<\/block>)|(<block[^>]*\/>)|(<label[^>]*>.*?<\/label>)|(<label[^>]*\/>)|(<comment[^>]*>.*?<\/comment>)|(<comment[^>]*\/>)|(<field[^>]*>.*?<\/field>)|(<field[^>]*\/>)|(<value[^>]*>.*?<\/value>)|(<value[^>]*\/>)|(<statement[^>]*>.*?<\/statement>)|(<statement[^>]*\/>)|(<next[^>]*>.*?<\/next>)|(<next[^>]*\/>)|(<sep[^>]*\/>)|(<sep[^>]*>.*?<\/sep>)/g;
+    const filteredGroups = groups.map(group => {
+        // Lấy tất cả block và tag phụ (label, comment, ...) trong group
+        let match;
+        let validBlockCount = 0;
+        let filteredParts = [];
+        while ((match = blockOrOtherRegex.exec(group)) !== null) {
+            const part = match[0];
+            if (part.startsWith('<block')) {
+                // Lấy type
+                const typeMatch = part.match(/type\s*=\s*["']([^"']+)["']/);
+                const blockType = typeMatch ? typeMatch[1] : null;
+                if (blockType && categoryBlocks.includes(blockType)) {
+                    filteredParts.push(part);
+                    validBlockCount++;
+                }
+            } else {
+                // Giữ lại label, comment, ... (nếu có)
+                filteredParts.push(part);
+            }
+        }
+        // Chỉ giữ lại nhóm nếu còn ít nhất 1 block hợp lệ
+        return validBlockCount > 0 ? filteredParts.join('\n').trim() : '';
+    });
+    // Ghép lại các nhóm không rỗng, chèn lại <sep gap="36"/> (hoặc separator mặc định)
+    const joined = filteredGroups.filter(g => g.length > 0).join('\n<sep gap="36"/>\n');
+    // Ghép lại XML
+    return categoryOpen + '\n' + joined + '\n' + categoryClose;
 };
 
 /* eslint-disable no-unused-vars */

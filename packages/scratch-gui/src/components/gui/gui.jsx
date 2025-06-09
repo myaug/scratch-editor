@@ -140,6 +140,7 @@ const GUIComponent = props => {
         userOwnsProject,
         hideTutorialProjects,
         vm,
+        currentLevel,
         ...componentProps
     } = omit(props, 'dispatch', 'setPlatform');
     if (children) {
@@ -357,6 +358,7 @@ const GUIComponent = props => {
                                             stageSize={stageSize}
                                             theme={theme}
                                             vm={vm}
+                                            currentLevel={currentLevel}
                                         />
                                     </Box>
                                     <Box className={styles.extensionButtonContainer}>
@@ -495,7 +497,8 @@ GUIComponent.propTypes = {
     username: PropTypes.string,
     userOwnsProject: PropTypes.bool,
     hideTutorialProjects: PropTypes.bool,
-    vm: PropTypes.instanceOf(VM).isRequired
+    vm: PropTypes.instanceOf(VM).isRequired,
+    currentLevel: PropTypes.string
 };
 
 GUIComponent.defaultProps = {
@@ -527,7 +530,8 @@ const mapStateToProps = state => ({
     // This is the button's mode, as opposed to the actual current state
     blocksId: state.scratchGui.timeTravel.year.toString(),
     stageSizeMode: state.scratchGui.stageSize.stageSize,
-    theme: state.scratchGui.theme.theme
+    theme: state.scratchGui.theme.theme,
+    currentLevel: state.scratchGui.blockLevel.level
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -26,7 +26,7 @@ export const BLOCK_LEVEL_CONFIG = {
     [BLOCK_LEVELS.EXPLORER]: {
         motion: [
             'motion_movesteps',
-            'motion_turnright', 
+            'motion_turnright',
             'motion_turnleft'
         ],
         looks: [
@@ -42,11 +42,28 @@ export const BLOCK_LEVEL_CONFIG = {
         ],
         sound: [
             'sound_play',
-            'sound_playforbeats'
+            'sound_playuntildone'
         ],
         events: [
             'event_whenflagclicked',
-            'event_whenthisspriteclicked'
+            'event_whenthisspriteclicked',
+            'event_whenkeypressed'
+        ],
+        control: [
+            'control_wait',
+            'control_repeat',
+            'control_forever'
+        ],
+        sensing: [
+            'sensing_keypressed',
+            'sensing_mousedown',
+            'sensing_mousex',
+            'sensing_mousey'
+        ],
+        operators: [
+            'operator_add',
+            'operator_subtract',
+            'operator_equals'
         ]
     },
 
