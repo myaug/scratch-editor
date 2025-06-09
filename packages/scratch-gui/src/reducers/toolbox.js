@@ -1,8 +1,9 @@
 const UPDATE_TOOLBOX = 'scratch-gui/toolbox/UPDATE_TOOLBOX';
 import makeToolboxXML from '../lib/make-toolbox-xml';
+import {BLOCK_LEVELS} from '../lib/block-levels';
 
 const initialState = {
-    toolboxXML: makeToolboxXML(true)
+    toolboxXML: makeToolboxXML(true, true, undefined, [], '', '', '', undefined, BLOCK_LEVELS.STUDIO)
 };
 
 const reducer = function (state, action) {

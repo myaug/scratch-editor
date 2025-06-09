@@ -1,18 +1,119 @@
 import ScratchBlocks from 'scratch-blocks';
 import {defaultColors} from './themes';
+import {getBlocksForLevel, BLOCK_LEVELS} from './block-levels';
 
 const categorySeparator = '<sep gap="36"/>';
 
 const blockSeparator = '<sep gap="36"/>'; // At default scale, about 28px
 
+/**
+ * Filter block XML content based on the current level
+ * @param {string} blockXML - The XML content containing blocks
+ * @param {string} categoryName - The category name (motion, looks, etc.)
+ * @param {string} currentLevel - The current block level
+ * @returns {string} - Filtered XML content
+ */
+const filterBlocksForLevel = function (blockXML, categoryName, currentLevel) {
+    if (!currentLevel || currentLevel === BLOCK_LEVELS.STUDIO) {
+        return blockXML; // Show all blocks for Studio level or if no level specified
+    }
+    
+    const allowedBlocks = getBlocksForLevel(currentLevel);
+    const categoryBlocks = allowedBlocks[categoryName] || [];
+    
+    if (categoryBlocks.length === 0) {
+        return blockXML; // If no blocks defined for this category at this level, show all
+    }
+    
+    // Helper function to find block elements properly handling nested XML
+    const findBlockElements = (xml) => {
+        const blockElements = [];
+        let currentPos = 0;
+        
+        while (true) {
+            const blockStart = xml.indexOf('<block', currentPos);
+            if (blockStart === -1) break;
+            
+            // Find the type attribute
+            const typeMatch = xml.slice(blockStart).match(/type="([^"]+)"/);
+            if (!typeMatch) {
+                currentPos = blockStart + 6; // Skip this <block
+                continue;
+            }
+            
+            const blockType = typeMatch[1];
+            
+            // Find the matching closing tag
+            let depth = 0;
+            let pos = blockStart;
+            let blockEnd = -1;
+            
+            while (pos < xml.length) {
+                const nextOpen = xml.indexOf('<block', pos);
+                const nextClose = xml.indexOf('</block>', pos);
+                
+                if (nextClose === -1) break;
+                
+                if (nextOpen !== -1 && nextOpen < nextClose) {
+                    depth++;
+                    pos = nextOpen + 6;
+                } else {
+                    if (depth === 0) {
+                        blockEnd = nextClose + 8;
+                        break;
+                    }
+                    depth--;
+                    pos = nextClose + 8;
+                }
+            }
+            
+            if (blockEnd !== -1) {
+                const blockContent = xml.slice(blockStart, blockEnd);
+                blockElements.push({
+                    type: blockType,
+                    content: blockContent
+                });
+                currentPos = blockEnd;
+            } else {
+                currentPos = blockStart + 6;
+            }
+        }
+        
+        return blockElements;
+    };
+    
+    // Find all block elements
+    const allBlocks = findBlockElements(blockXML);
+    const allowedBlockElements = allBlocks.filter(block => categoryBlocks.includes(block.type));
+    
+    if (allowedBlockElements.length > 0) {
+        // Extract the category opening and closing tags
+        const categoryOpenMatch = blockXML.match(/^(.*?<category[^>]*>)/s);
+        const categoryCloseMatch = blockXML.match(/(<\/category>.*)$/s);
+        
+        if (categoryOpenMatch && categoryCloseMatch) {
+            const categoryOpen = categoryOpenMatch[1];
+            const categoryClose = categoryCloseMatch[1];
+            
+            // Reconstruct with filtered blocks, using the actual separator value
+            const separator = '<sep gap="36"/>';
+            const filteredContent = allowedBlockElements.map(block => block.content).join('\n' + separator + '\n');
+            
+            return categoryOpen + '\n' + filteredContent + '\n' + categoryClose;
+        }
+    }
+    
+    return blockXML;
+};
+
 /* eslint-disable no-unused-vars */
-const motion = function (isInitialSetup, isStage, targetId, colors) {
+const motion = function (isInitialSetup, isStage, targetId, colors, currentLevel) {
     const stageSelected = ScratchBlocks.ScratchMsgs.translate(
         'MOTION_STAGE_SELECTED',
         'Stage selected: no motion blocks'
     );
     // Note: the category's secondaryColour matches up with the blocks' tertiary color, both used for border color.
-    return `
+    const motionXML = `
     <category name="%{BKY_CATEGORY_MOTION}" id="motion" colour="${colors.primary}" secondaryColour="${colors.tertiary}">
         ${isStage ? `
         <label text="${stageSelected}"></label>
@@ -139,6 +240,9 @@ const motion = function (isInitialSetup, isStage, targetId, colors) {
         ${categorySeparator}
     </category>
     `;
+    
+    // Apply block filtering based on current level
+    return filterBlocksForLevel(motionXML, 'motion', currentLevel);
 };
 
 const xmlEscape = function (unsafe) {
@@ -153,11 +257,11 @@ const xmlEscape = function (unsafe) {
     });
 };
 
-const looks = function (isInitialSetup, isStage, targetId, costumeName, backdropName, colors) {
+const looks = function (isInitialSetup, isStage, targetId, costumeName, backdropName, colors, currentLevel) {
     const hello = ScratchBlocks.ScratchMsgs.translate('LOOKS_HELLO', 'Hello!');
     const hmm = ScratchBlocks.ScratchMsgs.translate('LOOKS_HMM', 'Hmm...');
     // Note: the category's secondaryColour matches up with the blocks' tertiary color, both used for border color.
-    return `
+    const looksXML = `
     <category name="%{BKY_CATEGORY_LOOKS}" id="looks" colour="${colors.primary}" secondaryColour="${colors.tertiary}">
         ${isStage ? '' : `
         <block type="looks_sayforsecs">
@@ -289,11 +393,14 @@ const looks = function (isInitialSetup, isStage, targetId, costumeName, backdrop
         ${categorySeparator}
     </category>
     `;
+    
+    // Apply block filtering based on current level
+    return filterBlocksForLevel(looksXML, 'looks', currentLevel);
 };
 
-const sound = function (isInitialSetup, isStage, targetId, soundName, colors) {
+const sound = function (isInitialSetup, isStage, targetId, soundName, colors, currentLevel) {
     // Note: the category's secondaryColour matches up with the blocks' tertiary color, both used for border color.
-    return `
+    const soundXML = `
     <category name="%{BKY_CATEGORY_SOUND}" id="sound" colour="${colors.primary}" secondaryColour="${colors.tertiary}">
         <block id="${targetId}_sound_playuntildone" type="sound_playuntildone">
             <value name="SOUND_MENU">
@@ -345,11 +452,14 @@ const sound = function (isInitialSetup, isStage, targetId, soundName, colors) {
         ${categorySeparator}
     </category>
     `;
+    
+    // Apply block filtering based on current level
+    return filterBlocksForLevel(soundXML, 'sound', currentLevel);
 };
 
-const events = function (isInitialSetup, isStage, targetId, colors) {
+const events = function (isInitialSetup, isStage, targetId, colors, currentLevel) {
     // Note: the category's secondaryColour matches up with the blocks' tertiary color, both used for border color.
-    return `
+    const eventsXML = `
     <category name="%{BKY_CATEGORY_EVENTS}" id="events" colour="${colors.primary}" secondaryColour="${colors.tertiary}">
         <block type="event_whenflagclicked"/>
         <block type="event_whenkeypressed">
@@ -385,11 +495,14 @@ const events = function (isInitialSetup, isStage, targetId, colors) {
         ${categorySeparator}
     </category>
     `;
+    
+    // Apply block filtering based on current level
+    return filterBlocksForLevel(eventsXML, 'events', currentLevel);
 };
 
-const control = function (isInitialSetup, isStage, targetId, colors) {
+const control = function (isInitialSetup, isStage, targetId, colors, currentLevel) {
     // Note: the category's secondaryColour matches up with the blocks' tertiary color, both used for border color.
-    return `
+    const controlXML = `
     <category
         name="%{BKY_CATEGORY_CONTROL}"
         id="control"
@@ -437,12 +550,15 @@ const control = function (isInitialSetup, isStage, targetId, colors) {
         ${categorySeparator}
     </category>
     `;
+    
+    // Apply block filtering based on current level
+    return filterBlocksForLevel(controlXML, 'control', currentLevel);
 };
 
-const sensing = function (isInitialSetup, isStage, targetId, colors) {
+const sensing = function (isInitialSetup, isStage, targetId, colors, currentLevel) {
     const name = ScratchBlocks.ScratchMsgs.translate('SENSING_ASK_TEXT', 'What\'s your name?');
     // Note: the category's secondaryColour matches up with the blocks' tertiary color, both used for border color.
-    return `
+    const sensingXML = `
     <category
         name="%{BKY_CATEGORY_SENSING}"
         id="sensing"
@@ -517,14 +633,17 @@ const sensing = function (isInitialSetup, isStage, targetId, colors) {
         ${categorySeparator}
     </category>
     `;
+    
+    // Apply block filtering based on current level
+    return filterBlocksForLevel(sensingXML, 'sensing', currentLevel);
 };
 
-const operators = function (isInitialSetup, isStage, targetId, colors) {
+const operators = function (isInitialSetup, isStage, targetId, colors, currentLevel) {
     const apple = ScratchBlocks.ScratchMsgs.translate('OPERATORS_JOIN_APPLE', 'apple');
     const banana = ScratchBlocks.ScratchMsgs.translate('OPERATORS_JOIN_BANANA', 'banana');
     const letter = ScratchBlocks.ScratchMsgs.translate('OPERATORS_LETTEROF_APPLE', 'a');
     // Note: the category's secondaryColour matches up with the blocks' tertiary color, both used for border color.
-    return `
+    const operatorsXML = `
     <category
         name="%{BKY_CATEGORY_OPERATORS}"
         id="operators"
@@ -709,11 +828,14 @@ const operators = function (isInitialSetup, isStage, targetId, colors) {
         ${categorySeparator}
     </category>
     `;
+    
+    // Apply block filtering based on current level
+    return filterBlocksForLevel(operatorsXML, 'operators', currentLevel);
 };
 
-const variables = function (isInitialSetup, isStage, targetId, colors) {
+const variables = function (isInitialSetup, isStage, targetId, colors, currentLevel) {
     // Note: the category's secondaryColour matches up with the blocks' tertiary color, both used for border color.
-    return `
+    const variablesXML = `
     <category
         name="%{BKY_CATEGORY_VARIABLES}"
         id="variables"
@@ -722,11 +844,14 @@ const variables = function (isInitialSetup, isStage, targetId, colors) {
         custom="VARIABLE">
     </category>
     `;
+    
+    // Apply block filtering based on current level
+    return filterBlocksForLevel(variablesXML, 'variables', currentLevel);
 };
 
-const myBlocks = function (isInitialSetup, isStage, targetId, colors) {
+const myBlocks = function (isInitialSetup, isStage, targetId, colors, currentLevel) {
     // Note: the category's secondaryColour matches up with the blocks' tertiary color, both used for border color.
-    return `
+    const myBlocksXML = `
     <category
         name="%{BKY_CATEGORY_MYBLOCKS}"
         id="myBlocks"
@@ -735,6 +860,9 @@ const myBlocks = function (isInitialSetup, isStage, targetId, colors) {
         custom="PROCEDURE">
     </category>
     `;
+    
+    // Apply block filtering based on current level
+    return filterBlocksForLevel(myBlocksXML, 'myBlocks', currentLevel);
 };
 /* eslint-enable no-unused-vars */
 
@@ -758,7 +886,7 @@ const xmlClose = '</xml>';
  * @returns {string} - a ScratchBlocks-style XML document for the contents of the toolbox.
  */
 const makeToolboxXML = function (isInitialSetup, isStage = true, targetId, categoriesXML = [],
-    costumeName = '', backdropName = '', soundName = '', colors = defaultColors) {
+    costumeName = '', backdropName = '', soundName = '', colors = defaultColors, currentLevel = null) {
     isStage = isInitialSetup || isStage;
     const gap = [categorySeparator];
 
@@ -776,16 +904,16 @@ const makeToolboxXML = function (isInitialSetup, isStage = true, targetId, categ
         }
         // return `undefined`
     };
-    const motionXML = moveCategory('motion') || motion(isInitialSetup, isStage, targetId, colors.motion);
+    const motionXML = moveCategory('motion') || motion(isInitialSetup, isStage, targetId, colors.motion, currentLevel);
     const looksXML = moveCategory('looks') ||
-        looks(isInitialSetup, isStage, targetId, costumeName, backdropName, colors.looks);
-    const soundXML = moveCategory('sound') || sound(isInitialSetup, isStage, targetId, soundName, colors.sounds);
-    const eventsXML = moveCategory('event') || events(isInitialSetup, isStage, targetId, colors.event);
-    const controlXML = moveCategory('control') || control(isInitialSetup, isStage, targetId, colors.control);
-    const sensingXML = moveCategory('sensing') || sensing(isInitialSetup, isStage, targetId, colors.sensing);
-    const operatorsXML = moveCategory('operators') || operators(isInitialSetup, isStage, targetId, colors.operators);
-    const variablesXML = moveCategory('data') || variables(isInitialSetup, isStage, targetId, colors.data);
-    const myBlocksXML = moveCategory('procedures') || myBlocks(isInitialSetup, isStage, targetId, colors.more);
+        looks(isInitialSetup, isStage, targetId, costumeName, backdropName, colors.looks, currentLevel);
+    const soundXML = moveCategory('sound') || sound(isInitialSetup, isStage, targetId, soundName, colors.sounds, currentLevel);
+    const eventsXML = moveCategory('event') || events(isInitialSetup, isStage, targetId, colors.event, currentLevel);
+    const controlXML = moveCategory('control') || control(isInitialSetup, isStage, targetId, colors.control, currentLevel);
+    const sensingXML = moveCategory('sensing') || sensing(isInitialSetup, isStage, targetId, colors.sensing, currentLevel);
+    const operatorsXML = moveCategory('operators') || operators(isInitialSetup, isStage, targetId, colors.operators, currentLevel);
+    const variablesXML = moveCategory('data') || variables(isInitialSetup, isStage, targetId, colors.data, currentLevel);
+    const myBlocksXML = moveCategory('procedures') || myBlocks(isInitialSetup, isStage, targetId, colors.more, currentLevel);
 
     const everything = [
         xmlOpen,

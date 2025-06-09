@@ -154,7 +154,8 @@ class Blocks extends React.Component {
             this.props.customProceduresVisible !== nextProps.customProceduresVisible ||
             this.props.locale !== nextProps.locale ||
             this.props.anyModalVisible !== nextProps.anyModalVisible ||
-            this.props.stageSize !== nextProps.stageSize
+            this.props.stageSize !== nextProps.stageSize ||
+            this.props.currentLevel !== nextProps.currentLevel
         );
     }
     componentDidUpdate (prevProps) {
@@ -167,6 +168,11 @@ class Blocks extends React.Component {
         // different from the previously rendered toolbox xml.
         // Do not check against prevProps.toolboxXML because that may not have been rendered.
         if (this.props.isVisible && this.props.toolboxXML !== this._renderedToolboxXML) {
+            this.requestToolboxUpdate();
+        }
+
+        // Update toolbox when currentLevel changes
+        if (this.props.isVisible && this.props.currentLevel !== prevProps.currentLevel) {
             this.requestToolboxUpdate();
         }
 
@@ -363,7 +369,8 @@ class Blocks extends React.Component {
                 targetCostumes[targetCostumes.length - 1].name,
                 stageCostumes[stageCostumes.length - 1].name,
                 targetSounds.length > 0 ? targetSounds[targetSounds.length - 1].name : '',
-                getColorsForTheme(this.props.theme)
+                getColorsForTheme(this.props.theme),
+                this.props.currentLevel
             );
         } catch {
             return null;
@@ -549,6 +556,7 @@ class Blocks extends React.Component {
         const {
             anyModalVisible,
             canUseCloud,
+            currentLevel,
             customProceduresVisible,
             extensionLibraryVisible,
             options,
@@ -682,7 +690,8 @@ const mapStateToProps = state => ({
     toolboxXML: state.scratchGui.toolbox.toolboxXML,
     customProceduresVisible: state.scratchGui.customProcedures.active,
     workspaceMetrics: state.scratchGui.workspaceMetrics,
-    useCatBlocks: isTimeTravel2020(state)
+    useCatBlocks: isTimeTravel2020(state),
+    currentLevel: state.scratchGui.blockLevel.level
 });
 
 const mapDispatchToProps = dispatch => ({
