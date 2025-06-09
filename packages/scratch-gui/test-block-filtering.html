@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Block Filtering Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 3px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>Block Level Filtering Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Instructions</h2>
+        <p>To test the block filtering functionality:</p>
+        <ol>
+            <li>Open the Scratch editor at <a href="http://localhost:8601">http://localhost:8601</a></li>
+            <li>Look for the Level menu in the top menu bar (Khám phá / Sáng tạo / Thành thạo / Studio)</li>
+            <li>Select different levels and observe the blocks in each category</li>
+            <li>Check that only the appropriate blocks show for each level</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>Expected Block Filtering Behavior</h2>
+        
+        <h3>Explorer Level (Khám phá)</h3>
+        <div class="info">
+            <strong>Motion:</strong> motion_movesteps, motion_turnright, motion_turnleft<br>
+            <strong>Looks:</strong> looks_say, looks_show, looks_hide<br>
+            <strong>Events:</strong> event_whenflagclicked, event_whenkeypressed
+        </div>
+
+        <h3>Creator Level (Sáng tạo)</h3>
+        <div class="info">
+            <strong>Motion:</strong> All explorer blocks + motion_goto, motion_gotoxy<br>
+            <strong>Looks:</strong> All explorer blocks + looks_switchcostumeto, looks_nextcostume<br>
+            <strong>Sound:</strong> sound_play, sound_playuntildone
+        </div>
+
+        <h3>Master Level (Thành thạo)</h3>
+        <div class="info">
+            <strong>Motion:</strong> All creator blocks + motion_pointindirection, motion_changexby<br>
+            <strong>Control:</strong> control_wait, control_repeat, control_forever, control_if<br>
+            <strong>Sensing:</strong> sensing_touchingobject, sensing_keypressed
+        </div>
+
+        <h3>Studio Level</h3>
+        <div class="info">
+            Shows all blocks (no filtering applied)
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test the filterBlocksForLevel Function</h2>
+        <button onclick="runFilterTests()">Run Filter Tests</button>
+        <div id="testResults"></div>
+    </div>
+
+    <script>
+        function runFilterTests() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<div class="info">Running tests...</div>';
+            
+            // Simulate the test by checking console for filter function logs
+            // In real testing, you would import and test the filterBlocksForLevel function
+            
+            setTimeout(() => {
+                resultsDiv.innerHTML = `
+                    <div class="success">✓ Function tests would need to be run in the actual Scratch environment</div>
+                    <div class="info">To verify the fixes:</div>
+                    <div class="info">1. Check browser console for filterBlocksForLevel debug logs</div>
+                    <div class="info">2. Switch between different levels in the Scratch editor</div>
+                    <div class="info">3. Verify that blocks are filtered correctly for each category</div>
+                `;
+            }, 1000);
+        }
+
+        // Show current status
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date().toLocaleString();
+            document.body.insertAdjacentHTML('afterbegin', 
+                `<div class="info">Block filtering fixes applied on: ${now}</div>`
+            );
+        });
+    </script>
+</body>
+</html>

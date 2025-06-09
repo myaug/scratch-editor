@@ -22,21 +22,17 @@ export const autoLoadCustomLocale = async (locale, dispatch) => {
     dispatch(startLoadingCustomLocale(locale));
 
     try {
-        console.log(`🌐 Auto-loading custom locale: ${locale}`);
         const customMessages = await localeManager.loadCustomLocale(locale);
         
         if (customMessages && Object.keys(customMessages).length > 0) {
-            console.log(`✅ Loaded ${Object.keys(customMessages).length} custom messages for ${locale}`);
             dispatch(updateCustomMessages(locale, customMessages));
             dispatch(finishLoadingCustomLocale(locale));
             return true;
         } else {
-            console.log(`ℹ️ No custom messages found for ${locale}`);
             dispatch(finishLoadingCustomLocale(locale));
             return false;
         }
     } catch (error) {
-        console.warn(`❌ Failed to auto-load custom locale ${locale}:`, error);
         dispatch(finishLoadingCustomLocale(locale));
         return false;
     }
@@ -71,7 +67,6 @@ export const initializeCustomLocales = async (state, dispatch) => {
     
     // Only auto-load if using custom translations
     if (localizationMode === 'transifex-only') {
-        console.log('🌐 Skipping custom locale auto-load (transifex-only mode)');
         return;
     }
 

@@ -233,7 +233,7 @@ class Blocks extends React.Component {
 
         const categoryId = this.workspace.toolbox_.getSelectedCategoryId();
         const offset = this.workspace.toolbox_.getCategoryScrollOffset();
-        // Debug log
+
         // eslint-disable-next-line no-console
         this.workspace.updateToolbox(this.props.toolboxXML);
         this._renderedToolboxXML = this.props.toolboxXML;
@@ -374,15 +374,6 @@ class Blocks extends React.Component {
                 getColorsForTheme(this.props.theme),
                 this.props.currentLevel
             );
-            // Debug log
-            const motionMatch = xml.match(/<category[^>]*id="events"[^>]*>[\s\S]*?<\/category>/);
-            if (motionMatch) {
-                // eslint-disable-next-line no-console
-                console.log('[getToolboxXML] events category XML:', motionMatch[0]);
-            } else {
-                // eslint-disable-next-line no-console
-                console.log('[getToolboxXML] events category XML: NOT FOUND');
-            }
             return xml;
         } catch {
             return null;

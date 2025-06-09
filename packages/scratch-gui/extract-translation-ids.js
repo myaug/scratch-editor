@@ -58,10 +58,6 @@ const generateTemplate = function (ids) {
 const ids = scanFiles();
 const template = generateTemplate(ids);
 
-console.log('Found IDs:', ids.length);
-console.log('Template generated:');
-console.log(JSON.stringify(template, null, 2));
-
 // Write to file
 fs.writeFileSync(
     'src/lib/custom-locales/template.json',

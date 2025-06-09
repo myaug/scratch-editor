@@ -46,8 +46,9 @@ export const BLOCK_LEVEL_CONFIG = {
         ],
         events: [
             'event_whenflagclicked',
-            'event_whenthisspriteclicked',
-            'event_whenkeypressed'
+            'event_whenkeypressed',
+            'event_whenstageclicked',
+            'event_whenthisspriteclicked'
         ],
         control: [
             'control_wait',
@@ -84,6 +85,7 @@ export const BLOCK_LEVEL_CONFIG = {
             'looks_think',
             'looks_thinkforsecs',
             'looks_switchbackdropto',
+            'looks_switchbackdroptoandwait',
             'looks_nextbackdrop',
             'looks_changesizeby',
             'looks_setsizeto',
@@ -161,6 +163,7 @@ export const BLOCK_LEVEL_CONFIG = {
             'sensing_distanceto',
             'sensing_askandwait',
             'sensing_answer',
+            'sensing_setdragmode',
             'sensing_loudness',
             'sensing_timer',
             'sensing_resettimer',

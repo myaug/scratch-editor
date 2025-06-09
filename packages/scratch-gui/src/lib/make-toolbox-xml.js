@@ -21,57 +21,153 @@ const filterBlocksForLevel = function (blockXML, categoryName, currentLevel) {
     const allowedBlocks = getBlocksForLevel(currentLevel);
     const categoryBlocks = allowedBlocks[categoryName] || [];
     
-    // Debug log
-    // eslint-disable-next-line no-console
-    console.log('[filterBlocksForLevel]', { categoryName, currentLevel, categoryBlocks });
-    
     if (categoryBlocks.length === 0) {
-        // Trả về category rỗng đúng định dạng
-        const categoryOpenMatch = blockXML.match(/^(.*?<category[^>]*>)/s);
-        const categoryCloseMatch = blockXML.match(/(<\/category>.*)$/s);
-        if (!categoryOpenMatch || !categoryCloseMatch) return blockXML;
-        return categoryOpenMatch[1] + '\n' + categoryCloseMatch[1];
+        return 'undefined';
     }
     
-    // Extract the category opening and closing tags
+    // Extract category opening and closing tags
     const categoryOpenMatch = blockXML.match(/^(.*?<category[^>]*>)/s);
     const categoryCloseMatch = blockXML.match(/(<\/category>.*)$/s);
     if (!categoryOpenMatch || !categoryCloseMatch) return blockXML;
+    
     const categoryOpen = categoryOpenMatch[1];
     const categoryClose = categoryCloseMatch[1];
     const categoryContent = blockXML.slice(categoryOpen.length, blockXML.length - categoryClose.length);
 
-    // Tách các nhóm theo <sep gap="..."/>
-    const sepRegex = /<sep gap="\d+"\/>/g;
-    const groups = categoryContent.split(sepRegex);
-    const blockOrOtherRegex = /(<block[\s\S]*?<\/block>)|(<block[^>]*\/>)|(<label[^>]*>.*?<\/label>)|(<label[^>]*\/>)|(<comment[^>]*>.*?<\/comment>)|(<comment[^>]*\/>)|(<field[^>]*>.*?<\/field>)|(<field[^>]*\/>)|(<value[^>]*>.*?<\/value>)|(<value[^>]*\/>)|(<statement[^>]*>.*?<\/statement>)|(<statement[^>]*\/>)|(<next[^>]*>.*?<\/next>)|(<next[^>]*\/>)|(<sep[^>]*\/>)|(<sep[^>]*>.*?<\/sep>)/g;
-    const filteredGroups = groups.map(group => {
-        // Lấy tất cả block và tag phụ (label, comment, ...) trong group
-        let match;
-        let validBlockCount = 0;
-        let filteredParts = [];
-        while ((match = blockOrOtherRegex.exec(group)) !== null) {
-            const part = match[0];
-            if (part.startsWith('<block')) {
-                // Lấy type
-                const typeMatch = part.match(/type\s*=\s*["']([^"']+)["']/);
-                const blockType = typeMatch ? typeMatch[1] : null;
-                if (blockType && categoryBlocks.includes(blockType)) {
-                    filteredParts.push(part);
-                    validBlockCount++;
+    // Parse the content sequentially, preserving order and existing separators
+    const parseContent = (content) => {
+        const elements = [];
+        let position = 0;
+        
+        while (position < content.length) {
+            // Skip empty spaces/newlines
+            const nextElementStart = content.slice(position).search(/<(?:block|sep|label|comment)/);
+            if (nextElementStart === -1) break;
+            
+            position += nextElementStart;
+            
+            // Check what type of element we found
+            if (content.slice(position).startsWith('<block')) {
+                // Extract block
+                const typeMatch = content.slice(position).match(/^<block[^>]*type\s*=\s*["']([^"']+)["']/);
+                if (!typeMatch) {
+                    position++;
+                    continue;
+                }
+                
+                const blockType = typeMatch[1];
+                
+                // Find the end of this block (handling nested blocks)
+                let depth = 0;
+                let currentPos = position;
+                let blockEnd = -1;
+                
+                while (currentPos < content.length) {
+                    const nextBlockStart = content.indexOf('<block', currentPos === position ? currentPos + 6 : currentPos);
+                    const nextBlockEnd = content.indexOf('</block>', currentPos);
+                    const selfClosing = content.slice(currentPos, currentPos + 200).match(/^<block[^>]*\/>/);
+                    
+                    if (selfClosing && currentPos === position) {
+                        // Self-closing block
+                        blockEnd = position + selfClosing[0].length;
+                        break;
+                    }
+                    
+                    if (nextBlockEnd === -1) break;
+                    
+                    if (nextBlockStart !== -1 && nextBlockStart < nextBlockEnd) {
+                        depth++;
+                        currentPos = nextBlockStart + 6;
+                    } else {
+                        if (depth === 0) {
+                            blockEnd = nextBlockEnd + 8; // '</block>'.length
+                            break;
+                        }
+                        depth--;
+                        currentPos = nextBlockEnd + 8;
+                    }
+                }
+                
+                if (blockEnd !== -1) {
+                    const blockContent = content.slice(position, blockEnd);
+                    elements.push({
+                        type: 'block',
+                        blockType: blockType,
+                        content: blockContent,
+                        allowed: categoryBlocks.includes(blockType)
+                    });
+                    position = blockEnd;
+                } else {
+                    position++;
+                }
+            } else if (content.slice(position).startsWith('<sep')) {
+                // Extract separator
+                const sepMatch = content.slice(position).match(/^<sep[^>]*(?:\/>|>[^<]*<\/sep>)/);
+                if (sepMatch) {
+                    elements.push({
+                        type: 'separator',
+                        content: sepMatch[0]
+                    });
+                    position += sepMatch[0].length;
+                } else {
+                    position++;
+                }
+            } else if (content.slice(position).match(/^<(?:label|comment)/)) {
+                // Extract other elements (labels, comments)
+                const otherMatch = content.slice(position).match(/^<(?:label|comment)[^>]*(?:\/>|>.*?<\/(?:label|comment)>)/s);
+                if (otherMatch) {
+                    elements.push({
+                        type: 'other',
+                        content: otherMatch[0]
+                    });
+                    position += otherMatch[0].length;
+                } else {
+                    position++;
                 }
             } else {
-                // Giữ lại label, comment, ... (nếu có)
-                filteredParts.push(part);
+                position++;
             }
         }
-        // Chỉ giữ lại nhóm nếu còn ít nhất 1 block hợp lệ
-        return validBlockCount > 0 ? filteredParts.join('\n').trim() : '';
+        
+        return elements;
+    };
+    
+    const elements = parseContent(categoryContent);
+    
+    // Filter elements: keep allowed blocks, preserve other elements and separators
+    const filteredElements = elements.filter(element => {
+        if (element.type === 'block') {
+            return element.allowed;
+        }
+        return true; // Keep separators and other elements
     });
-    // Ghép lại các nhóm không rỗng, chèn lại <sep gap="36"/> (hoặc separator mặc định)
-    const joined = filteredGroups.filter(g => g.length > 0).join('\n<sep gap="36"/>\n');
-    // Ghép lại XML
-    return categoryOpen + '\n' + joined + '\n' + categoryClose;
+    
+    if (filteredElements.filter(el => el.type === 'block').length === 0) {
+        // Return empty category if no blocks remain
+        return categoryOpen + '\n' + categoryClose;
+    }
+    
+    // Build the filtered content
+    let filteredContent = filteredElements.map(el => el.content).join('\n');
+    
+    // Clean up consecutive separators and separators at beginning/end
+    filteredContent = filteredContent
+        // Remove multiple consecutive separators (with possible whitespace between)
+        .replace(/(<sep[^>]*(?:\/>|>[^<]*<\/sep>))\s*\n\s*(<sep[^>]*(?:\/>|>[^<]*<\/sep>))/g, '$1')
+        // Remove separators at the very beginning (right after category opening)
+        .replace(/^\s*<sep[^>]*(?:\/>|>[^<]*<\/sep>)\s*\n?/, '');
+    
+    // Ensure there's always a separator before the closing category tag
+    if (filteredContent && !filteredContent.trim().endsWith('/>') && !filteredContent.includes(categorySeparator)) {
+        filteredContent += '\n' + categorySeparator;
+    } else if (filteredContent && !filteredContent.trim().endsWith('/>')) {
+        // If content doesn't end with a separator, add one
+        if (!/<sep[^>]*(?:\/>|>[^<]*<\/sep>)\s*$/.test(filteredContent)) {
+            filteredContent += '\n' + categorySeparator;
+        }
+    }
+    
+    return categoryOpen + '\n' + filteredContent + '\n' + categoryClose;
 };
 
 /* eslint-disable no-unused-vars */
