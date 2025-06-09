@@ -264,6 +264,12 @@ $fade-out-distance: 15px;
     cursor: pointer;
 }
 
+.extension-button:disabled {
+    background: #c0c0c0;
+    cursor: auto;
+    opacity: 0.6;
+}
+
 .extension-button-icon {
     width: 1.75rem;
     height: 1.75rem;

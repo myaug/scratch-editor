@@ -34,6 +34,7 @@ import TelemetryModal from '../telemetry-modal/telemetry-modal.jsx';
 import layout, {STAGE_SIZE_MODES} from '../../lib/layout-constants';
 import {resolveStageSize} from '../../lib/screen-utils';
 import {themeMap} from '../../lib/themes';
+import {BLOCK_LEVELS} from '../../lib/block-levels';
 import {AccountMenuOptionsPropTypes} from '../../lib/account-menu-options';
 
 import styles from './gui.css';
@@ -366,6 +367,7 @@ const GUIComponent = props => {
                                             className={styles.extensionButton}
                                             title={intl.formatMessage(messages.addExtension)}
                                             onClick={onExtensionButtonClick}
+                                            disabled={currentLevel !== BLOCK_LEVELS.STUDIO}
                                         >
                                             <img
                                                 className={styles.extensionButtonIcon}
