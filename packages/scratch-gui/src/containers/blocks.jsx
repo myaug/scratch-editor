@@ -173,6 +173,11 @@ class Blocks extends React.Component {
 
         // Update toolbox when currentLevel changes
         if (this.props.isVisible && this.props.currentLevel !== prevProps.currentLevel) {
+            // Regenerate toolbox XML with new level and update Redux state
+            const newToolboxXML = this.getToolboxXML();
+            if (newToolboxXML) {
+                this.props.updateToolboxState(newToolboxXML);
+            }
             this.requestToolboxUpdate();
         }
 

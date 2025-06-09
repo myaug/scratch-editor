@@ -30,7 +30,7 @@ const messages = defineMessages({
     }
 });
 
-class TipsLibrary extends React.PureComponent {
+class TipsLibrary extends React.Component {
     constructor (props) {
         super(props);
         bindAll(this, [
@@ -120,6 +120,7 @@ class TipsLibrary extends React.PureComponent {
         if (!this.props.visible) return null;
         return (
             <LibraryComponent
+                key={`tips-library-${this.props.currentLevel}`} // Force re-render when level changes
                 filterable
                 data={decksLibraryThumbnailData}
                 id="tipsLibrary"
